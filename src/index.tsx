@@ -38,3 +38,6 @@ export function pay(
     amount
   );
 }
+
+export { ApplePayButton } from './components/ApplePayButton';
+export type { Props as ApplePayButtonProps } from './components/ApplePayButton';
