@@ -12,10 +12,15 @@ RCT_EXTERN_METHOD(
                   rejecter: (RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(
-                  pay:(NSString *)clientSecret
-                  params:(NSDictionary *)params
+                  presentApplePay:(NSDictionary *)params
+                  clientSecret:(NSString *)clientSecret
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(
+                  confirmApplePayPayment:(NSString *)clientSecret
+                  resolver: (RCTPromiseResolveBlock)resolve
+                  rejecter: (RCTPromiseRejectBlock)reject)
 
 + (BOOL)requiresMainQueueSetup
 {

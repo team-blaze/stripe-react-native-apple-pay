@@ -2,9 +2,10 @@ import * as React from 'react';
 
 import { StyleSheet, View, Button, Alert } from 'react-native';
 import {
-  pay,
   isApplePaySupported,
   ApplePayButton,
+  initStripe,
+  presentApplePay,
 } from 'react-native-stripe-apple-pay';
 
 export default function App() {
@@ -45,19 +46,38 @@ export default function App() {
               amount,
             } = await response.json();
 
-            pay(publishableKey, clientSecret, merchantIdentifier, {
-              cartItems: [
-                {
-                  label: 'Test',
-                  // presentApplePay expects amount as a formatted string, unlike createGooglePayPaymentMethod 🙃
-                  amount: (amount / 100).toFixed(2),
-                  paymentType: 'Immediate',
-                },
-              ],
-              country,
-              currency,
-            })
-              .then(() => Alert.alert('Success'))
+            await initStripe({
+              publishableKey,
+              merchantIdentifier,
+            });
+
+            presentApplePay(
+              {
+                cartItems: [
+                  {
+                    label: 'Test',
+                    // presentApplePay expects amount as a formatted string, unlike createGooglePayPaymentMethod 🙃
+                    amount: (amount / 100).toFixed(2),
+                    paymentType: 'Immediate',
+                  },
+                ],
+                country,
+                currency,
+              },
+              clientSecret
+            )
+              .then(({ error }) => {
+                if (error) {
+                  if (error.message === 'The payment has been canceled') {
+                    // Payment method collection has been cancelled by the payment sheet being dismissed, return early
+                    return;
+                  }
+
+                  Alert.alert('Error', error.message);
+                }
+
+                Alert.alert('Success');
+              })
               .catch((error) => {
                 console.warn(error);
                 Alert.alert('Error', error.toString());

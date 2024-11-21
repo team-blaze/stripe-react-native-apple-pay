@@ -11,6 +11,10 @@ class StripeApplePay: NSObject, ApplePayContextDelegate {
   var applePayRequestResolver: RCTPromiseResolveBlock? = nil
   var applePayRequestRejecter: RCTPromiseRejectBlock? = nil
 
+  var applePayRequestClientSecret: String? = nil
+
+  var applePayCompletionCallback: STPIntentClientSecretCompletionBlock? = nil
+
   @objc(initialise:resolver:rejecter:)
   func initialise(params: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
       let publishableKey = params["publishableKey"] as! String
@@ -31,11 +35,11 @@ class StripeApplePay: NSObject, ApplePayContextDelegate {
   }
 
   @objc(
-    pay:params:resolver:rejecter:
+    presentApplePay:clientSecret:resolver:rejecter:
   )
-  func pay(
-    clientSecret: String,
+  func presentApplePay(
     params: NSDictionary,
+    clientSecret: String?,
     resolve: @escaping RCTPromiseResolveBlock,
     reject: @escaping RCTPromiseRejectBlock
   ) {
@@ -58,12 +62,25 @@ class StripeApplePay: NSObject, ApplePayContextDelegate {
     }
   }
 
+  @objc(confirmApplePayPayment:resolver:rejecter:)
+  func confirmApplePayPayment(clientSecret: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+      self.applePayRequestRejecter = reject
+      self.applePayRequestResolver = resolve
+      self.applePayCompletionCallback?(clientSecret, nil)
+  }
+
   public func applePayContext(
     _ context: STPApplePayContext,
     didCreatePaymentMethod paymentMethod: StripeCore.StripeAPI.PaymentMethod,
     paymentInformation: PKPayment, completion: @escaping STPIntentClientSecretCompletionBlock
   ) {
-    completion(clientSecret, nil)
+    if let clientSecret = self.applePayRequestClientSecret {
+        completion(clientSecret, nil)
+    } else {
+        self.applePayCompletionCallback = completion
+        applePayRequestResolver?(["result": "success"])
+        self.applePayRequestRejecter = nil
+    }
   }
 
   public func applePayContext(

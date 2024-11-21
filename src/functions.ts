@@ -1,5 +1,5 @@
 import NativeStripeSdk from './NativeStripeSdk';
-import type { ApplePay, InitialiseParams } from './types';
+import type { ApplePay, InitialiseParams, StripeError } from './types';
 import { ApplePayError } from './types/ApplePay';
 
 export function initStripe(params: InitialiseParams): Promise<void> {
@@ -13,9 +13,9 @@ export function isApplePaySupported(): Promise<boolean> {
 const APPLE_PAY_NOT_SUPPORTED_MESSAGE =
   'Apple pay is not supported on this device';
 
-export async function pay(
-  clientSecret: String,
-  params: ApplePay.PresentParams
+export async function presentApplePay(
+  params: ApplePay.PresentParams,
+  clientSecret?: string
 ): Promise<ApplePay.ApplePayResult> {
   if (!(await NativeStripeSdk.isApplePaySupported())) {
     return {
@@ -27,7 +27,10 @@ export async function pay(
   }
 
   try {
-    const { result, error } = await NativeStripeSdk.pay(clientSecret, params);
+    const { result, error } = await NativeStripeSdk.presentApplePay(
+      params,
+      clientSecret
+    );
     if (error) {
       return {
         error,
@@ -40,3 +43,24 @@ export async function pay(
     };
   }
 }
+
+export const confirmApplePayPayment = async (
+  clientSecret: string
+): Promise<{ error?: StripeError<ApplePayError> }> => {
+  if (!(await NativeStripeSdk.isApplePaySupported())) {
+    return {
+      error: {
+        code: ApplePayError.Canceled,
+        message: APPLE_PAY_NOT_SUPPORTED_MESSAGE,
+      },
+    };
+  }
+  try {
+    await NativeStripeSdk.confirmApplePayPayment(clientSecret);
+    return {};
+  } catch (error: any) {
+    return {
+      error,
+    };
+  }
+};

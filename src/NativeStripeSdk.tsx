@@ -6,10 +6,11 @@ import type { ApplePayResult } from './types/ApplePay';
 type NativeStripeSdkType = {
   initialise(params: InitialiseParams): Promise<void>;
   isApplePaySupported(): Promise<boolean>;
-  pay(
-    clientSecret: String,
-    params: ApplePay.PresentParams
+  presentApplePay(
+    params: ApplePay.PresentParams,
+    clientSecret?: string
   ): Promise<ApplePayResult>;
+  confirmApplePayPayment(clientSecret: string): Promise<void>;
 };
 
 const LINKING_ERROR =

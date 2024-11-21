@@ -1,9 +1,10 @@
 import * as ApplePay from './ApplePay';
-import * as Errors from './Errors';
 
 import * as ApplePayButtonComponent from './components/ApplePayButtonComponent';
 
-export { ApplePay, ApplePayButtonComponent, Errors };
+export { ApplePay, ApplePayButtonComponent };
+
+export * from './Errors';
 
 export interface InitialiseParams {
   publishableKey: string;
