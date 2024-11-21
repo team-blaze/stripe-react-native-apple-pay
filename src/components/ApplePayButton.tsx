@@ -8,6 +8,7 @@ import type { ApplePayButtonComponent } from '../types';
  */
 export interface Props extends AccessibilityProps {
   style?: StyleProp<ViewStyle>;
+  disabled?: boolean
   type?: ApplePayButtonComponent.Type;
   buttonStyle?: ApplePayButtonComponent.Style;
   borderRadius?: number;
