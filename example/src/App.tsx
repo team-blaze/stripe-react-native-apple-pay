@@ -1,19 +1,25 @@
 import * as React from 'react';
 
 import { StyleSheet, View, Button, Alert } from 'react-native';
-import { pay, deviceSupportsApplePay } from 'react-native-stripe-apple-pay';
+import {
+  pay,
+  isApplePaySupported,
+  ApplePayButton,
+} from 'react-native-stripe-apple-pay';
 
 export default function App() {
   return (
     <View style={styles.container}>
       <Button
         onPress={async () => {
-          const isSupported = deviceSupportsApplePay();
+          const isSupported = isApplePaySupported();
           Alert.alert('Supported' + isSupported ? 'Yes' : 'No');
         }}
         title="Device supports Apple Pay?"
       />
-      <Button
+      <ApplePayButton
+        type="plain"
+        buttonStyle="black"
         onPress={async () => {
           // You need to get clientSecret from your server
           // However while doing that you can also get all the other constants and avoid hardcoding.
@@ -39,14 +45,18 @@ export default function App() {
               amount,
             } = await response.json();
 
-            pay(
-              publishableKey,
-              clientSecret,
-              merchantIdentifier,
+            pay(publishableKey, clientSecret, merchantIdentifier, {
+              cartItems: [
+                {
+                  label: 'Test',
+                  // presentApplePay expects amount as a formatted string, unlike createGooglePayPaymentMethod 🙃
+                  amount: (amount / 100).toFixed(2),
+                  paymentType: 'Immediate',
+                },
+              ],
               country,
               currency,
-              amount
-            )
+            })
               .then(() => Alert.alert('Success'))
               .catch((error) => {
                 console.warn(error);
@@ -59,7 +69,7 @@ export default function App() {
             );
           }
         }}
-        title="Pay with Apple Pay"
+        style={styles.button}
       />
     </View>
   );
@@ -71,9 +81,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  box: {
-    width: 60,
-    height: 60,
-    marginVertical: 20,
-  },
+  button: { width: '100%', height: 52, marginVertical: 20 },
 });

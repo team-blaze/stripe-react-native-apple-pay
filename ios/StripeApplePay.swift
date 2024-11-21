@@ -9,14 +9,11 @@ class StripeApplePay: NSObject, ApplePayContextDelegate {
   var resolve: RCTPromiseResolveBlock? = nil
   var reject: RCTPromiseRejectBlock? = nil
 
-  @objc(
-    deviceSupportsApplePay:withRejecter:
-  )
-  func deviceSupportsApplePay(
-    resolve: RCTPromiseResolveBlock,
-    reject: RCTPromiseRejectBlock
-  ) {
-    resolve(StripeAPI.deviceSupportsApplePay())
+  @objc(isApplePaySupported:rejecter:)
+  func isApplePaySupported(resolver resolve: @escaping RCTPromiseResolveBlock,
+                           rejecter reject: @escaping RCTPromiseRejectBlock) {
+      let isSupported = StripeAPI.deviceSupportsApplePay()
+      resolve(isSupported)
   }
 
   @objc(
