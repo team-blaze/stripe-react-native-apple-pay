@@ -1,3 +1,5 @@
+import type { StripeError } from './Errors';
+
 export type ContactFieldsType =
   | 'emailAddress'
   | 'name'
@@ -108,3 +110,19 @@ export interface PresentParams {
   shippingMethods?: ShippingMethod[];
   jcbEnabled?: boolean;
 }
+
+export enum ApplePayError {
+  Canceled = 'Canceled',
+  Failed = 'Failed',
+  Unknown = 'Unknown',
+}
+
+export type ApplePayResult =
+  | {
+      result: string;
+      error?: undefined;
+    }
+  | {
+      result?: undefined;
+      error: StripeError<ApplePayError>;
+    };

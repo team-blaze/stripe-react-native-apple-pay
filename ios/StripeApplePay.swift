@@ -4,10 +4,10 @@ import StripeApplePay
 
 @objc(StripeApplePay)
 class StripeApplePay: NSObject, ApplePayContextDelegate {
-
   var clientSecret: String? = nil
-  var resolve: RCTPromiseResolveBlock? = nil
-  var reject: RCTPromiseRejectBlock? = nil
+
+  var applePayRequestResolver: RCTPromiseResolveBlock? = nil
+  var applePayRequestRejecter: RCTPromiseRejectBlock? = nil
 
   @objc(isApplePaySupported:rejecter:)
   func isApplePaySupported(resolver resolve: @escaping RCTPromiseResolveBlock,
@@ -30,8 +30,8 @@ class StripeApplePay: NSObject, ApplePayContextDelegate {
     StripeAPI.defaultPublishableKey = publishableKey
 
     self.clientSecret = clientSecret
-    self.resolve = resolve
-    self.reject = reject
+    self.applePayRequestResolver = resolve
+    self.applePayRequestRejecter = reject
 
     let (error, paymentRequest) = ApplePayUtils.createPaymentRequest(merchantIdentifier: merchantIdentifier, params: params)
     guard let paymentRequest = paymentRequest else {
@@ -40,9 +40,11 @@ class StripeApplePay: NSObject, ApplePayContextDelegate {
     }
 
     if let applePayContext = STPApplePayContext(paymentRequest: paymentRequest, delegate: self) {
-      applePayContext.presentApplePay()
+        DispatchQueue.main.async {
+            applePayContext.presentApplePay(completion: nil)
+        }
     } else {
-      reject("apple-pay-context-error", "Apple Pay context error", nil)
+        resolve(Errors.createError(ErrorType.Failed, "Payment not completed"))
     }
   }
 
@@ -60,15 +62,22 @@ class StripeApplePay: NSObject, ApplePayContextDelegate {
   ) {
     switch status {
     case .success:
-      resolve!("success")
-      break
+        applePayRequestResolver?(["result": "success"])
+        break
     case .error:
-      reject!(error?.localizedDescription, error.debugDescription, nil)
-      break
+        let message = "Payment not completed"
+        applePayRequestRejecter?(ErrorType.Failed, message, nil)
+        break
     case .userCancellation:
-      reject!("cancelled-by-user", "Payment cancelled by user", nil)
-      break
+        let message = "The payment has been canceled"
+        applePayRequestRejecter?(ErrorType.Canceled, message, nil)
+        break
+    @unknown default:
+        let message = "Payment not completed"
+        applePayRequestRejecter?(ErrorType.Unknown, message, nil)
+        break
     }
+    applePayRequestRejecter = nil
   }
 
 }
