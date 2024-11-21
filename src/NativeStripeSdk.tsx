@@ -1,14 +1,13 @@
 import { NativeModules, Platform } from 'react-native';
 
-import type { ApplePay } from './types';
+import type { ApplePay, InitialiseParams } from './types';
 import type { ApplePayResult } from './types/ApplePay';
 
 type NativeStripeSdkType = {
+  initialise(params: InitialiseParams): Promise<void>;
   isApplePaySupported(): Promise<boolean>;
   pay(
-    publishableKey: String,
     clientSecret: String,
-    merchantIdentifier: string,
     params: ApplePay.PresentParams
   ): Promise<ApplePayResult>;
 };

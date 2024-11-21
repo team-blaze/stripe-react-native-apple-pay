@@ -1,6 +1,10 @@
 import NativeStripeSdk from './NativeStripeSdk';
-import type { ApplePay } from './types';
+import type { ApplePay, InitialiseParams } from './types';
 import { ApplePayError } from './types/ApplePay';
+
+export function initStripe(params: InitialiseParams): Promise<void> {
+  return NativeStripeSdk.initialise(params);
+}
 
 export function isApplePaySupported(): Promise<boolean> {
   return NativeStripeSdk.isApplePaySupported();
@@ -10,9 +14,7 @@ const APPLE_PAY_NOT_SUPPORTED_MESSAGE =
   'Apple pay is not supported on this device';
 
 export async function pay(
-  publishableKey: String,
   clientSecret: String,
-  merchantIdentifier: string,
   params: ApplePay.PresentParams
 ): Promise<ApplePay.ApplePayResult> {
   if (!(await NativeStripeSdk.isApplePaySupported())) {
@@ -25,12 +27,7 @@ export async function pay(
   }
 
   try {
-    const { result, error } = await NativeStripeSdk.pay(
-      publishableKey,
-      clientSecret,
-      merchantIdentifier,
-      params
-    );
+    const { result, error } = await NativeStripeSdk.pay(clientSecret, params);
     if (error) {
       return {
         error,

@@ -6,8 +6,22 @@ import StripeApplePay
 class StripeApplePay: NSObject, ApplePayContextDelegate {
   var clientSecret: String? = nil
 
+  var merchantIdentifier: String? = nil
+
   var applePayRequestResolver: RCTPromiseResolveBlock? = nil
   var applePayRequestRejecter: RCTPromiseRejectBlock? = nil
+
+  @objc(initialise:resolver:rejecter:)
+  func initialise(params: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+      let publishableKey = params["publishableKey"] as! String
+      let merchantIdentifier = params["merchantIdentifier"] as? String
+
+      StripeAPI.defaultPublishableKey = publishableKey
+
+      self.merchantIdentifier = merchantIdentifier
+
+      resolve(NSNull())
+  }
 
   @objc(isApplePaySupported:rejecter:)
   func isApplePaySupported(resolver resolve: @escaping RCTPromiseResolveBlock,
@@ -17,18 +31,14 @@ class StripeApplePay: NSObject, ApplePayContextDelegate {
   }
 
   @objc(
-    pay:clientSecret:merchantIdentifier:params:resolver:rejecter:
+    pay:params:resolver:rejecter:
   )
   func pay(
-    publishableKey: String,
     clientSecret: String,
-    merchantIdentifier: String,
     params: NSDictionary,
     resolve: @escaping RCTPromiseResolveBlock,
     reject: @escaping RCTPromiseRejectBlock
   ) {
-    StripeAPI.defaultPublishableKey = publishableKey
-
     self.clientSecret = clientSecret
     self.applePayRequestResolver = resolve
     self.applePayRequestRejecter = reject
