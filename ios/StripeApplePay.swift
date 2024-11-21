@@ -20,38 +20,29 @@ class StripeApplePay: NSObject, ApplePayContextDelegate {
   }
 
   @objc(
-    pay:withClientSecret:withMerchantIdentifier:withCountry:withCurrency:withAmount:withResolver:
-    withRejecter:
+    pay:clientSecret:merchantIdentifier:params:resolver:rejecter:
   )
   func pay(
     publishableKey: String,
     clientSecret: String,
     merchantIdentifier: String,
-    country: String,
-    currency: String,
-    amount: String,
+    params: NSDictionary,
     resolve: @escaping RCTPromiseResolveBlock,
     reject: @escaping RCTPromiseRejectBlock
   ) {
-    if !StripeAPI.deviceSupportsApplePay() {
-      reject("apple-pay-not-supported", "Apple Pay is not supported", nil)
-    }
     StripeAPI.defaultPublishableKey = publishableKey
 
     self.clientSecret = clientSecret
     self.resolve = resolve
     self.reject = reject
 
-    let pr = StripeAPI.paymentRequest(
-      withMerchantIdentifier: merchantIdentifier, country: country,
-      currency: currency)
+    let (error, paymentRequest) = ApplePayUtils.createPaymentRequest(merchantIdentifier: merchantIdentifier, params: params)
+    guard let paymentRequest = paymentRequest else {
+        resolve(error)
+        return
+    }
 
-    pr.requiredBillingContactFields = []
-    pr.paymentSummaryItems = [
-      PKPaymentSummaryItem(label: "Total", amount: NSDecimalNumber(string: amount))
-    ]
-
-    if let applePayContext = STPApplePayContext(paymentRequest: pr, delegate: self) {
+    if let applePayContext = STPApplePayContext(paymentRequest: paymentRequest, delegate: self) {
       applePayContext.presentApplePay()
     } else {
       reject("apple-pay-context-error", "Apple Pay context error", nil)

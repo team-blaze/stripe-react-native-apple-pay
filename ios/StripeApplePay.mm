@@ -6,13 +6,11 @@ RCT_EXTERN_METHOD(deviceSupportsApplePay:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(pay:(NSString *)publishableKey 
-                 withClientSecret:(NSString *)clientSecret 
-                 withMerchantIdentifier:(NSString *)merchantIdentifier 
-                 withCountry:(NSString *)country 
-                 withCurrency:(NSString *)currency
-                 withAmount:(NSString *)amount
-                 withResolver:(RCTPromiseResolveBlock)resolve
-                 withRejecter:(RCTPromiseRejectBlock)reject)
+                 clientSecret:(NSString *)clientSecret 
+                 merchantIdentifier:(NSString *)merchantIdentifier 
+                 params:(NSDictionary *)params
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
 
 + (BOOL)requiresMainQueueSetup
 {
