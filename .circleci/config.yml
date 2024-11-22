@@ -34,7 +34,7 @@ jobs:
           at: ~/repo
       - run:
           name: Set release version
-          command: yarn version --new-version $CIRCLE_TAG
+          command: yarn version $CIRCLE_TAG
       - run:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
