@@ -2,9 +2,11 @@ require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 folly_compiler_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32'
+# Keep stripe_version in sync with https://github.com/stripe/stripe-identity-react-native/blob/main/stripe-identity-react-native.podspec
+stripe_version = '~> 23.8.0'
 
 Pod::Spec.new do |s|
-  s.name         = "react-native-stripe-apple-pay"
+  s.name         = "stripe-react-native-apple-pay"
   s.version      = package["version"]
   s.summary      = package["description"]
   s.homepage     = package["homepage"]
@@ -12,7 +14,7 @@ Pod::Spec.new do |s|
   s.authors      = package["author"]
 
   s.platforms    = { :ios => "13.0" }
-  s.source       = { :git => "https://github.com/RobertSasak/react-native-stripe-apple-pay.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/team-blaze/stripe-react-native-apple-pay.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
@@ -38,5 +40,5 @@ Pod::Spec.new do |s|
     s.dependency "ReactCommon/turbomodule/core"
    end
   end
-  s.dependency 'StripeApplePay'    
+  s.dependency 'StripeApplePay', stripe_version
 end

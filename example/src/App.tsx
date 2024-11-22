@@ -6,7 +6,7 @@ import {
   ApplePayButton,
   initStripe,
   presentApplePay,
-} from 'react-native-stripe-apple-pay';
+} from 'stripe-react-native-apple-pay';
 
 export default function App() {
   return (

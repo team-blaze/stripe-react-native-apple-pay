@@ -1,5 +1,5 @@
 {
-  "name": "react-native-stripe-apple-pay",
+  "name": "stripe-react-native-apple-pay",
   "version": "0.2.0",
   "description": "React Native wrapper around Stripe Apple Pay",
   "main": "lib/commonjs/index",
@@ -28,7 +28,7 @@
   ],
   "scripts": {
     "server": "cd server && yarn start",
-    "example": "yarn workspace react-native-stripe-apple-pay-example",
+    "example": "yarn workspace stripe-react-native-apple-pay-example",
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
@@ -41,13 +41,13 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/RobertSasak/react-native-stripe-apple-pay",
-  "author": "Robert Sasak <robert.sasak@gmail.com> (https://github.com/RobertSasak)",
+  "repository": "https://github.com/team-blaze/stripe-react-native-apple-pay",
+  "author": "Huw Martin <huw.martin@beryl.cc> (https://github.com/huwmartin)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/RobertSasak/react-native-stripe-apple-pay/issues"
+    "url": "https://github.com/team-blaze/stripe-react-native-apple-pay/issues"
   },
-  "homepage": "https://github.com/RobertSasak/react-native-stripe-apple-pay#readme",
+  "homepage": "https://github.com/team-blaze/stripe-react-native-apple-pay#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

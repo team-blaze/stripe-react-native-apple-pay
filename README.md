@@ -1,16 +1,13 @@
-
-# react-native-stripe-apple-pay
+# stripe-react-native-apple-pay
 
 React Native wrapper around Stripe Apple Pay. Currently there are very limited configuration options. Feel free to open a PR to add more.
 
-<p align="center">
-  <img src="https://github.com/RobertSasak/react-native-stripe-apple-pay/assets/281281/ff84d472-e5ca-4cdc-ac79-c09e2dac1499" />
-</p>
+This is a fork of [react-native-stripe-apple-pay](https://github.com/RobertSasak/react-native-stripe-apple-pay) with the addition of an `ApplePayButton` component and updates to the API to align more with [@stripe/stripe-react-native](https://github.com/stripe/stripe-react-native)
 
 ## Installation
 
 ```sh
-yarn add install react-native-stripe-apple-pay
+yarn add install stripe-react-native-apple-pay
 ```
 
 ## Testing

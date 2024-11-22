@@ -1,5 +1,5 @@
 {
-  "name": "react-native-stripe-apple-pay-example",
+  "name": "stripe-react-native-apple-pay-example",
   "version": "0.0.1",
   "private": true,
   "scripts": {

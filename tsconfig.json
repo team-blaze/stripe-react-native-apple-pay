@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "react-native-stripe-apple-pay": ["./src/index"]
+      "stripe-react-native-apple-pay": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

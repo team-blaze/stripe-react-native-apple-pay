@@ -13,7 +13,7 @@ const {
   removeMetaDataItemFromMainApplication,
 } = AndroidConfig.Manifest;
 
-const pkg = require('react-native-stripe-apple-pay/package.json');
+const pkg = require('stripe-react-native-apple-pay/package.json');
 
 type StripePluginProps = {
   /**
