@@ -37,7 +37,7 @@ jobs:
           command: yarn version $CIRCLE_TAG
       - run:
           name: Authenticate with registry
-          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
+          command: yarn config set 'npmRegistries["//registry.npmjs.org/"].npmAuthToken' "$NPM_TOKEN"
       - run:
           name: Publish package
           command: yarn npm publish
