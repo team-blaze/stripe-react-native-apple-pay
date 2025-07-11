@@ -6,8 +6,8 @@ import {
   ApplePayButton,
   initStripe,
   confirmPlatformPayPayment,
+  PlatformPay,
 } from 'stripe-react-native-apple-pay';
-import type { PaymentType } from '../../src/types/PlatformPay';
 
 export default function App() {
   return (
@@ -59,7 +59,7 @@ export default function App() {
                     label: 'Test',
                     // presentApplePay expects amount as a formatted string, unlike createGooglePayPaymentMethod 🙃
                     amount: (amount / 100).toFixed(2),
-                    paymentType: 'Immediate' as PaymentType.Immediate,
+                    paymentType: PlatformPay.PaymentType.Immediate,
                   },
                 ],
                 merchantCountryCode: country,
