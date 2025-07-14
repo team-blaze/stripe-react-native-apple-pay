@@ -15,3 +15,9 @@ export interface StripeError<T> {
   stripeErrorCode?: string;
   type?: ErrorType;
 }
+
+export enum PlatformPayError {
+  Canceled = 'Canceled',
+  Failed = 'Failed',
+  Unknown = 'Unknown',
+}

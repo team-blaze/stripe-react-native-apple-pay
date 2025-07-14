@@ -4,16 +4,10 @@ import StripeApplePay
 
 @objc(StripeApplePay)
 class StripeApplePay: NSObject, ApplePayContextDelegate {
-  var clientSecret: String? = nil
-
   var merchantIdentifier: String? = nil
 
-  var applePayRequestResolver: RCTPromiseResolveBlock? = nil
-  var applePayRequestRejecter: RCTPromiseRejectBlock? = nil
-
-  var applePayRequestClientSecret: String? = nil
-
-  var applePayCompletionCallback: STPIntentClientSecretCompletionBlock? = nil
+  var confirmApplePayResolver: RCTPromiseResolveBlock? = nil
+  var confirmApplePayClientSecret: String? = nil
 
   @objc(initialise:resolver:rejecter:)
   func initialise(params: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
@@ -27,46 +21,39 @@ class StripeApplePay: NSObject, ApplePayContextDelegate {
       resolve(NSNull())
   }
 
-  @objc(isApplePaySupported:rejecter:)
-  func isApplePaySupported(resolver resolve: @escaping RCTPromiseResolveBlock,
+  @objc(isPlatformPaySupported:rejecter:)
+  func isPlatformPaySupported(resolver resolve: @escaping RCTPromiseResolveBlock,
                            rejecter reject: @escaping RCTPromiseRejectBlock) {
-      let isSupported = StripeAPI.deviceSupportsApplePay()
-      resolve(isSupported)
+      resolve(StripeAPI.deviceSupportsApplePay())
   }
 
-  @objc(
-    presentApplePay:clientSecret:resolver:rejecter:
-  )
-  func presentApplePay(
-    params: NSDictionary,
-    clientSecret: String?,
-    resolve: @escaping RCTPromiseResolveBlock,
-    reject: @escaping RCTPromiseRejectBlock
-  ) {
-    self.clientSecret = clientSecret
-    self.applePayRequestResolver = resolve
-    self.applePayRequestRejecter = reject
+  @objc(confirmPlatformPay:params:resolver:rejecter:)
+  func confirmPlatformPay(
+      clientSecret: String?,
+      params: NSDictionary,
+      resolver resolve: @escaping RCTPromiseResolveBlock,
+      rejecter reject: @escaping RCTPromiseRejectBlock
+  ) -> Void {
+      guard let applePayParams = params["applePay"] as? NSDictionary else {
+          resolve(Errors.createError(ErrorType.Failed, "You must provide the `applePay` parameter."))
+          return
+      }
+      let (error, paymentRequest) = ApplePayUtils.createPaymentRequest(merchantIdentifier: merchantIdentifier, params: applePayParams)
+      guard let paymentRequest = paymentRequest else {
+          resolve(error)
+          return
+      }
 
-    let (error, paymentRequest) = ApplePayUtils.createPaymentRequest(merchantIdentifier: merchantIdentifier, params: params)
-    guard let paymentRequest = paymentRequest else {
-        resolve(error)
-        return
-    }
+      self.confirmApplePayClientSecret = clientSecret
+      self.confirmApplePayResolver = resolve
 
-    if let applePayContext = STPApplePayContext(paymentRequest: paymentRequest, delegate: self) {
-        DispatchQueue.main.async {
-            applePayContext.presentApplePay(completion: nil)
-        }
-    } else {
-        resolve(Errors.createError(ErrorType.Failed, "Payment not completed"))
-    }
-  }
-
-  @objc(confirmApplePayPayment:resolver:rejecter:)
-  func confirmApplePayPayment(clientSecret: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-      self.applePayRequestRejecter = reject
-      self.applePayRequestResolver = resolve
-      self.applePayCompletionCallback?(clientSecret, nil)
+      if let applePayContext = STPApplePayContext(paymentRequest: paymentRequest, delegate: self) {
+          DispatchQueue.main.async {
+              applePayContext.presentApplePay(completion: nil)
+          }
+      } else {
+          resolve(Errors.createError(ErrorType.Failed, "Payment not completed"))
+      }
   }
 
   public func applePayContext(
@@ -74,12 +61,10 @@ class StripeApplePay: NSObject, ApplePayContextDelegate {
     didCreatePaymentMethod paymentMethod: StripeCore.StripeAPI.PaymentMethod,
     paymentInformation: PKPayment, completion: @escaping STPIntentClientSecretCompletionBlock
   ) {
-    if let clientSecret = self.applePayRequestClientSecret {
+    if let clientSecret = self.confirmApplePayClientSecret {
         completion(clientSecret, nil)
     } else {
-        self.applePayCompletionCallback = completion
-        applePayRequestResolver?(["result": "success"])
-        self.applePayRequestRejecter = nil
+        RCTMakeAndLogError("Tried to complete Apple Pay payment, but no client secret was found.", nil, nil)
     }
   }
 
@@ -89,22 +74,27 @@ class StripeApplePay: NSObject, ApplePayContextDelegate {
   ) {
     switch status {
     case .success:
-        applePayRequestResolver?(["result": "success"])
+        if let resolve = self.confirmApplePayResolver {
+            resolve(["result": "success"])
+        }
         break
     case .error:
-        let message = "Payment not completed"
-        applePayRequestRejecter?(ErrorType.Failed, message, nil)
+        if let resolve = self.confirmApplePayResolver {
+            resolve(Errors.createError(ErrorType.Failed, error as NSError?))
+        }
         break
     case .userCancellation:
         let message = "The payment has been canceled"
-        applePayRequestRejecter?(ErrorType.Canceled, message, nil)
+        if let resolve = self.confirmApplePayResolver {
+            resolve(Errors.createError(ErrorType.Canceled, message))
+        }
         break
     @unknown default:
-        let message = "Payment not completed"
-        applePayRequestRejecter?(ErrorType.Unknown, message, nil)
+        if let resolve = self.confirmApplePayResolver {
+            resolve(Errors.createError(ErrorType.Unknown, error as NSError?))
+        }
         break
     }
-    applePayRequestRejecter = nil
   }
 
 }

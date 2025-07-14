@@ -1,8 +1,8 @@
-import * as ApplePay from './ApplePay';
+import * as PlatformPay from './PlatformPay';
 
 import * as ApplePayButtonComponent from './components/ApplePayButtonComponent';
 
-export { ApplePay, ApplePayButtonComponent };
+export { PlatformPay, ApplePayButtonComponent };
 
 export * from './Errors';
 

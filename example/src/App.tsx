@@ -2,10 +2,11 @@ import * as React from 'react';
 
 import { StyleSheet, View, Button, Alert } from 'react-native';
 import {
-  isApplePaySupported,
+  isPlatformPaySupported,
   ApplePayButton,
   initStripe,
-  presentApplePay,
+  confirmPlatformPayPayment,
+  PlatformPay,
 } from 'stripe-react-native-apple-pay';
 
 export default function App() {
@@ -13,7 +14,7 @@ export default function App() {
     <View style={styles.container}>
       <Button
         onPress={async () => {
-          const isSupported = isApplePaySupported();
+          const isSupported = isPlatformPaySupported();
           Alert.alert('Supported' + isSupported ? 'Yes' : 'No');
         }}
         title="Device supports Apple Pay?"
@@ -51,24 +52,23 @@ export default function App() {
               merchantIdentifier,
             });
 
-            presentApplePay(
-              {
+            confirmPlatformPayPayment(clientSecret, {
+              applePay: {
                 cartItems: [
                   {
                     label: 'Test',
                     // presentApplePay expects amount as a formatted string, unlike createGooglePayPaymentMethod 🙃
                     amount: (amount / 100).toFixed(2),
-                    paymentType: 'Immediate',
+                    paymentType: PlatformPay.PaymentType.Immediate,
                   },
                 ],
-                country,
-                currency,
+                merchantCountryCode: country,
+                currencyCode: currency,
               },
-              clientSecret
-            )
+            })
               .then(({ error }) => {
                 if (error) {
-                  if (error.message === 'The payment has been canceled') {
+                  if (error.code === 'Canceled') {
                     // Payment method collection has been cancelled by the payment sheet being dismissed, return early
                     return;
                   }

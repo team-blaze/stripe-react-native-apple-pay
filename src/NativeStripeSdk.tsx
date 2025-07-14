@@ -1,16 +1,14 @@
 import { NativeModules, Platform } from 'react-native';
 
-import type { ApplePay, InitialiseParams } from './types';
-import type { ApplePayResult } from './types/ApplePay';
+import type { PlatformPay, InitialiseParams } from './types';
 
 type NativeStripeSdkType = {
   initialise(params: InitialiseParams): Promise<void>;
-  isApplePaySupported(): Promise<boolean>;
-  presentApplePay(
-    params: ApplePay.PresentParams,
-    clientSecret?: string
-  ): Promise<ApplePayResult>;
-  confirmApplePayPayment(clientSecret: string): Promise<void>;
+  isPlatformPaySupported(): Promise<boolean>;
+  confirmPlatformPay(
+    clientSecret: string,
+    params: PlatformPay.ConfirmParams
+  ): Promise<PlatformPay.ConfirmPlatformPayResult>;
 };
 
 const LINKING_ERROR =
