@@ -59,13 +59,17 @@ class StripeApplePay: NSObject, ApplePayContextDelegate {
   public func applePayContext(
     _ context: STPApplePayContext,
     didCreatePaymentMethod paymentMethod: StripeCore.StripeAPI.PaymentMethod,
-    paymentInformation: PKPayment, completion: @escaping STPIntentClientSecretCompletionBlock
-  ) {
+    paymentInformation: PKPayment
+  ) async throws -> String {
     if let clientSecret = self.confirmApplePayClientSecret {
-        completion(clientSecret, nil)
-    } else {
-        RCTMakeAndLogError("Tried to complete Apple Pay payment, but no client secret was found.", nil, nil)
+        return clientSecret
     }
+    RCTMakeAndLogError("Tried to complete Apple Pay payment, but no client secret was found.", nil, nil)
+    throw NSError(
+      domain: "StripeApplePay",
+      code: 0,
+      userInfo: [NSLocalizedDescriptionKey: "Tried to complete Apple Pay payment, but no client secret was found."]
+    )
   }
 
   public func applePayContext(
